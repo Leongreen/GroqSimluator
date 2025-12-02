@@ -11,7 +11,7 @@ Unlike standard AI Dungeon Masters, this system acts as a neutral physics engine
 The interface exposes the internal thinking trace, tool usage, validator logic, and real-time compute metrics. A raw window into the powerful compute driving the simulation.
 
 ### 3. Atomic Memory (Structure > Context)
-Narrative is treated as structured data, not just text. Events are captured as discrete, immutable database entries, ensuring facts remain consistent across gameplay.
+Narrative is treated as structured data, not just text. Events are captured as discrete, immutable database entries (SQLite), ensuring facts remain consistent across gameplay.
 
 ### 4. Adversarial Integrity (Truth > Creativity)
 A Generator proposes reality, but it must pass inspection by a Critic (Consistency Engine) before the user sees it. This "Trust but Verify" loop eliminates hallucination.
@@ -22,31 +22,35 @@ Real-time token counters, live TPS metrics, and sequential text rendering make t
 ## Architecture
 
 ```
-src/
-├── components/       # React UI components (Glass Box interface)
+groq_rpg/
 ├── engine/          # Reality Engine & Adversarial Architecture
-├── hooks/           # React hooks for game state management
-├── memory/          # Atomic Memory system (IndexedDB)
+│   ├── reality_engine.py      # World state, NPC agency, time system
+│   └── adversarial_engine.py  # Generator/Critic validation loop
+├── memory/          # Atomic Memory system (SQLite)
+│   └── atomic_memory.py       # Immutable event and fact storage
 ├── services/        # Groq API integration
-├── styles/          # Terminal aesthetic CSS
-└── types/           # TypeScript type definitions
+│   └── groq_service.py        # Streaming, tool use, metrics
+├── ui/              # Textual terminal UI
+│   └── app.py                 # Glass Box interface
+├── models.py        # Data models and types
+└── main.py          # Entry point
 ```
 
 ## Getting Started
 
 ```bash
 # Install dependencies
-npm install
+pip install -e .
+
+# Or install directly
+pip install groq textual rich pydantic python-dotenv
 
 # Configure your Groq API key
 cp .env.example .env
 # Edit .env and add your API key from https://console.groq.com/keys
 
-# Start development server
-npm run dev
-
-# Build for production
-npm run build
+# Run the simulator
+python -m groq_rpg.main
 ```
 
 ## Configuration
@@ -54,7 +58,7 @@ npm run build
 Create a `.env` file in the project root with your Groq API key:
 
 ```
-VITE_GROQ_API_KEY=your_groq_api_key_here
+GROQ_API_KEY=your_groq_api_key_here
 ```
 
 Get your API key from [Groq Console](https://console.groq.com/keys).
@@ -62,17 +66,24 @@ Get your API key from [Groq Console](https://console.groq.com/keys).
 ## Key Features
 
 - **Independent NPC Agency**: NPCs have goals, fears, and schedules. They act autonomously when the player isn't watching.
-- **Persistent World State**: Every action is logged as a structured event in IndexedDB.
+- **Persistent World State**: Every action is logged as a structured event in SQLite.
 - **Adversarial Validation**: All AI-generated content is validated for consistency before being shown.
 - **Real-time Metrics**: Live TPS, token counts, and latency measurements.
 - **Visible Thinking**: Watch the AI's reasoning process in real-time.
+- **Terminal UI**: Beautiful terminal interface built with Textual.
 
 ## Technology Stack
 
-- **Frontend**: React 18 + TypeScript + Vite
+- **UI**: Textual + Rich (terminal UI framework)
 - **AI**: Groq SDK (LLaMA 3.3 70B)
-- **Storage**: IndexedDB via idb
-- **Styling**: Custom terminal-aesthetic CSS
+- **Storage**: SQLite (atomic memory)
+- **Language**: Python 3.10+
+
+## Screenshots
+
+The simulator runs in your terminal with a split-panel interface:
+- Main panel: Game narrative and events
+- Side panels: Real-time metrics, thinking trace, tool calls, validation status
 
 ## License
 
